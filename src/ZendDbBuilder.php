@@ -206,6 +206,7 @@ final class ZendDbBuilder implements BuilderInterface
 
         if ($key === BuilderInterface::HINT_LIMIT) {
             $select->limit($value);
+            return;
         }
 
         // At this point, should only be BuilderInterface::HINT_SKIP . No if to keep PHPUnit happy

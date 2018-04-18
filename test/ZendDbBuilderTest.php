@@ -232,6 +232,22 @@ class ZendDbBuilderTest extends TestCase
         $this->assertSame('SELECT "test".* FROM "test" ORDER BY "id" ASC, "name" DESC', $this->createString($select));
     }
 
+    public function testLimit()
+    {
+        $request = new ServerRequest();
+        $request = $request->withQueryParams(['h' => '{"$limit":100}']);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame('SELECT "test".* FROM "test" LIMIT \'100\'', $this->createString($select));
+    }
+
+    public function testSkip()
+    {
+        $request = new ServerRequest();
+        $request = $request->withQueryParams(['h' => '{"$skip":100}']);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame('SELECT "test".* FROM "test" OFFSET \'100\'', $this->createString($select));
+    }
+
     private function createString(Select $select) : string
     {
         return $select->getSqlString(new TrustingSql92Platform());

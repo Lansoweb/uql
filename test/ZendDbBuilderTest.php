@@ -8,7 +8,6 @@ use Los\UrlQueryDb\ZendDbBuilder;
 use Los\UrlQueryDbTests\TestAssets\TrustingSql92Platform;
 use PHPUnit\Framework\TestCase;
 use Zend\Db\Sql\Select;
-use Zend\Db\Sql\Where;
 use Zend\Diactoros\ServerRequest;
 
 class ZendDbBuilderTest extends TestCase
@@ -18,7 +17,7 @@ class ZendDbBuilderTest extends TestCase
 
     protected function setUp()
     {
-        $this->builder = new ZendDbBuilder();
+        $this->builder = new ZendDbBuilder(new Select('test'));
     }
 
     public function testFromRequestWithInvalidQuery()
@@ -41,205 +40,200 @@ class ZendDbBuilderTest extends TestCase
 
     public function testEmptyQuery()
     {
-        $where = $this->builder->fromParams([], []);
-        $this->assertInstanceOf(Where::class, $where);
-        $this->assertSame(0, $where->count());
+        $select = $this->builder->fromParams([], []);
+        $this->assertInstanceOf(Select::class, $select);
+        $this->assertSame(0, $select->where->count());
     }
 
     public function testUnknownOperator()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"$abc":{"$a":1}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(0, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test"', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(0, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test"', $this->createString($select));
     }
 
     public function testSimpleQuery()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"id":1}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" = \'1\'', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" = \'1\'', $this->createString($select));
     }
 
     public function testNot()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"id":{"$not":1}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" != \'1\'', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" != \'1\'', $this->createString($select));
     }
 
     public function testNull()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"$null":"id"}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" IS NULL', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" IS NULL', $this->createString($select));
     }
 
     public function testNotNull()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"$nnull":"id"}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" IS NOT NULL', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" IS NOT NULL', $this->createString($select));
     }
 
     public function testIn()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"id":{"$in":[1,2]}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" IN (\'1\', \'2\')', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" IN (\'1\', \'2\')', $this->createString($select));
     }
 
     public function testNotIn()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"id":{"$nin":[1,2]}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" NOT IN (\'1\', \'2\')', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" NOT IN (\'1\', \'2\')', $this->createString($select));
     }
 
     public function testLike()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"name":{"$like":"test%"}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "name" LIKE \'test%\'', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "name" LIKE \'test%\'', $this->createString($select));
     }
 
     public function testNotAndLike()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"id":{"$not":1},"name":{"$like":"test%"}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(2, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" != \'1\' AND "name" LIKE \'test%\'', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(2, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" != \'1\' AND "name" LIKE \'test%\'', $this->createString($select));
     }
 
     public function testOr()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"$or":[{"id":1},{"id":"2"}]}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE ("id" = \'1\' OR "id" = \'2\')', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE ("id" = \'1\' OR "id" = \'2\')', $this->createString($select));
     }
 
     public function testAnd()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"$and":[{"id":1},{"name":"test"}]}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE ("id" = \'1\' AND "name" = \'test\')', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE ("id" = \'1\' AND "name" = \'test\')', $this->createString($select));
     }
 
     public function testNotAndOr()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"id":{"$not":1},"$or":[{"id":2},{"id":"3"}],"$and":[{"id":2},{"name":"test"}]}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(3, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" != \'1\' AND ("id" = \'2\' OR "id" = \'3\') AND ("id" = \'2\' AND "name" = \'test\')', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(3, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "id" != \'1\' AND ("id" = \'2\' OR "id" = \'3\') AND ("id" = \'2\' AND "name" = \'test\')', $this->createString($select));
     }
 
     public function testNestedAnd()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"$and":[{"id":{"$not":1}},{"name":"test"}]}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE ("id" != \'1\' AND "name" = \'test\')', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE ("id" != \'1\' AND "name" = \'test\')', $this->createString($select));
     }
 
     public function testDoubleNestedAndOr()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"$or":[{"$and":[{"id":1},{"name":"test"}]},{"id":{"$not":1}},{"name":"test"}]}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE (("id" = \'1\' AND "name" = \'test\') OR "id" != \'1\' OR "name" = \'test\')', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE (("id" = \'1\' AND "name" = \'test\') OR "id" != \'1\' OR "name" = \'test\')', $this->createString($select));
     }
 
     public function testGreater()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"price":{"$gt":100}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "price" > \'100\'', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "price" > \'100\'', $this->createString($select));
     }
 
     public function testGreaterEqual()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"price":{"$gte":100}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "price" >= \'100\'', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "price" >= \'100\'', $this->createString($select));
     }
 
     public function testLess()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"price":{"$lt":100}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "price" < \'100\'', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "price" < \'100\'', $this->createString($select));
     }
 
     public function testLessEqual()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"price":{"$lte":100}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "price" <= \'100\'', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "price" <= \'100\'', $this->createString($select));
     }
 
     public function testBetween()
     {
         $request = new ServerRequest();
         $request = $request->withQueryParams(['q' => '{"price":{"$bt":[100,200]}}']);
-        $where = $this->builder->fromRequest($request);
-        $this->assertSame(1, $where->count());
-        $select = $this->createSelect($where);
-        $this->assertSame('SELECT "test".* FROM "test" WHERE "price" BETWEEN \'100\' AND \'200\'', $select);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE "price" BETWEEN \'100\' AND \'200\'', $this->createString($select));
     }
 
-    private function createSelect(Where $where) : string
+    public function testSimpleSort()
     {
-        $select = new Select('test');
-        $select->where($where);
+        $request = new ServerRequest();
+        $request = $request->withQueryParams(['h' => '{"$sort":"id"}']);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame('SELECT "test".* FROM "test" ORDER BY "id" ASC', $this->createString($select));
+    }
+
+    public function testSort()
+    {
+        $request = new ServerRequest();
+        $request = $request->withQueryParams(['h' => '{"$sort":{"id":"asc","name":-1}}']);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame('SELECT "test".* FROM "test" ORDER BY "id" ASC, "name" DESC', $this->createString($select));
+    }
+
+    private function createString(Select $select) : string
+    {
         return $select->getSqlString(new TrustingSql92Platform());
     }
 }

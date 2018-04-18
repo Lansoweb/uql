@@ -43,6 +43,14 @@ interface BuilderInterface
         self::OP_BETWEEN
     ];
 
+    // Hints
+    const HINT_SORT = '$sort';
+    const HINT_LIMIT = '$limit';
+    const HINT_SKIP = '$skip';
+
+    const HINT_ORDER_ASC = ['asc', 'ASC', 1, '1'];
+    const HINT_ORDER_DESC = ['desc', 'DESC', -1, '-1'];
+
     public function fromRequest(ServerRequestInterface $request);
     public function fromParams(array $query, array $hint = []);
 }

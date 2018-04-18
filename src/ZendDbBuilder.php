@@ -8,31 +8,33 @@ use Psr\Http\Message\ServerRequestInterface;
 use Zend\Db\Sql\Predicate\IsNotNull;
 use Zend\Db\Sql\Predicate\IsNull;
 use Zend\Db\Sql\Predicate\Predicate;
+use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Where;
 
 final class ZendDbBuilder implements BuilderInterface
 {
     private $queryName;
     private $hintName;
-    private $where;
+    private $select;
 
     /**
      * ZendDbBuilder constructor.
+     * @param Select $select
      * @param string $queryName
      * @param string $hintName
      */
-    public function __construct(string $queryName = 'q', string $hintName = 'h')
+    public function __construct(Select $select, string $queryName = 'q', string $hintName = 'h')
     {
         $this->queryName = $queryName;
         $this->hintName = $hintName;
-        $this->where = new Where();
+        $this->select = clone $select;
     }
 
     /**
      * @param ServerRequestInterface $request
-     * @return Where
+     * @return Select
      */
-    public function fromRequest(ServerRequestInterface $request) : Where
+    public function fromRequest(ServerRequestInterface $request) : Select
     {
         $queryParams = $request->getQueryParams();
         $query = json_decode($queryParams['q'] ?? '{}', true);
@@ -48,20 +50,24 @@ final class ZendDbBuilder implements BuilderInterface
     /**
      * @param array $query
      * @param array $hint
-     * @return Where
+     * @return Select
      */
-    public function fromParams(array $query, array $hint = []) : Where
+    public function fromParams(array $query, array $hint = []) : Select
     {
         foreach ($query as $key => $value) {
-            $this->parseQuery($key, $value, $this->where);
+            $this->parseQuery($key, $value, $this->select->where);
         }
 
-        return $this->where;
+        foreach ($hint as $key => $value) {
+            $this->parseHint($key, $value, $this->select);
+        }
+
+        return $this->select;
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param mixed $key
+     * @param mixed $value
      * @param Predicate $where
      */
     private function parseQuery($key, $value, Predicate $where) : void
@@ -118,9 +124,9 @@ final class ZendDbBuilder implements BuilderInterface
     }
 
     /**
-     * @param $key
+     * @param mixed $key
      * @param string $op
-     * @param $value
+     * @param mixed $value
      * @param Predicate $where
      */
     private function parseLogic($key, string $op, $value, Predicate $where) : void
@@ -145,9 +151,9 @@ final class ZendDbBuilder implements BuilderInterface
     }
 
     /**
-     * @param $key
+     * @param mixed $key
      * @param string $op
-     * @param $value
+     * @param mixed $value
      * @param Predicate $where
      */
     private function parseConditional($key, string $op, $value, Predicate $where) : void
@@ -174,5 +180,35 @@ final class ZendDbBuilder implements BuilderInterface
 
         // At this point, should only be BuilderInterface::OP_BETWEEN . No if to keep PHPUnit happy
         $where->between($key, $value[0], $value[1]);
+    }
+
+    /**
+     * @param mixed $key
+     * @param mixed $value
+     * @param Select $select
+     */
+    private function parseHint($key, $value, Select $select) : void
+    {
+        if ($key === BuilderInterface::HINT_SORT) {
+            if (! is_array($value)) {
+                $select->order($value);
+                return;
+            }
+            foreach ($value as $sort => $order) {
+                $order = in_array($order, BuilderInterface::HINT_ORDER_ASC) ?
+                    Select::ORDER_ASCENDING :
+                    Select::ORDER_DESCENDING;
+                $value = "$sort $order";
+                $select->order($value);
+            }
+            return;
+        }
+
+        if ($key === BuilderInterface::HINT_LIMIT) {
+            $select->limit($value);
+        }
+
+        // At this point, should only be BuilderInterface::HINT_SKIP . No if to keep PHPUnit happy
+        $select->offset($value);
     }
 }

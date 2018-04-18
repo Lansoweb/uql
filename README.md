@@ -28,8 +28,10 @@ Planned:
 The builder uses the query parameters 'q' for the queries and 'h' for hint (sort, order, limits, etc).
 You can change these in the constructor:
 ```php
-$builder = new ZendDbBuilder('query', 'hint');
+$builder = new ZendDbBuilder($select, 'query', 'hint');
 ```
+
+The Select instance returned by the builder methods is a clone from the one passed in the constructor.
 
 ### Zend DB
 
@@ -38,9 +40,10 @@ Passing the request directly:
 ```php
 public function handle(ServerRequestInterface $request): ResponseInterface
 {
-    $where = (new ZendDbBuilder())->fromRequest($request);
     $select = new \Zend\Db\Select('table');
-    $list = $select->where($where);
+    $select = (new ZendDbBuilder($select))->fromRequest($request);
+    $statement = $sql->prepareStatementForSqlObject($select);
+    $results = $statement->execute();
 }
 ```
 
@@ -52,9 +55,10 @@ public function handle(ServerRequestInterface $request): ResponseInterface
     $query = $queryParams['q'] ?? [];
     $hint = $queryParams['h'] ?? [];
 
-    $where = (new ZendDbBuilder())->fromParams($query, $hint);
     $select = new \Zend\Db\Select('table');
-    $list = $select->where($where);
+    $select = (new ZendDbBuilder($select))->fromParams($query, $hint);
+    $statement = $sql->prepareStatementForSqlObject($select);
+    $results = $statement->execute();
 }
 ```
 
@@ -67,6 +71,8 @@ public function handle(ServerRequestInterface $request): ResponseInterface
 | in | ?q={"id":{"$in":[1,2]}} | WHERE id IN (1, 2) |
 | nin | ?q={"id":{"$nin":[1,2]}} | WHERE id NOT IN (1, 2) |
 | like | ?q={"name":{"$like":"John%"}} | WHERE name LIKE 'John%' |
+| null | ?q={"$null":"name"} | WHERE name IS NULL |
+| not null | ?q={"$nnull":"name"} | WHERE name IS NOT NULL |
 | and | ?q={"$and":[{"id":1},{"name":"John"}]} | WHERE id = 1 AND name = 'John' |
 | or | ?q={"$or":[{"id":1},{"name":"John"}]} | WHERE id = 1 OR name = 'John' |
 | greater | ?q={"price":{"$gt":100}} | WHERE price > 100 |
@@ -80,4 +86,13 @@ You can mix and nest queries:
 | url query | select |
 |-----------|-----------|
 | ?q={"id":{"$not":1},"$or":[{"id":2},{"id":"3"}],"$and":[{"id":2},{"name":"test"}]} | WHERE "id" != '1' AND ("id" = '2' OR "id" = '3') AND ("id" = '2' AND "name" = 'test') |
-| {"$or":[{"$and":[{"id":1},{"name":"test"}]},{"id":{"$not":1}},{"name":"test"}]} | WHERE (("id" = '1' AND "name" = 'test') OR "id" != '1' OR "name" = 'test') |
+| ?q={"$or":[{"$and":[{"id":1},{"name":"test"}]},{"id":{"$not":1}},{"name":"test"}]} | WHERE (("id" = '1' AND "name" = 'test') OR "id" != '1' OR "name" = 'test') |
+
+#### Hint examples:
+
+| operation | url query | select |
+|-----------|-----------|--------|
+| sort | ?q={"id":1}&h={"$sort":"name"} | WHERE id = 1 ORDER BY name asc, price DESC |
+| sort | ?q={"id":1}&h={"$sort":{"name":"asc","price":-1}} | WHERE id = 1 ORDER BY name asc, price DESC |
+| limit | ?q={}&h={"$limit":10} | SELECT * FROM table LIMIT 10 |
+| limit + skip | ?q={}&h={"$limit":10,"$skip":20} | SELECT * FROM table LIMIT 10 SKIP 10 |

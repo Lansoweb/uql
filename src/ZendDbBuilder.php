@@ -1,15 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace Los\UrlQueryDb;
+namespace Los\Uql;
 
-use Los\UrlQueryDb\Exception\MalformedException;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Db\Sql\Predicate\IsNotNull;
 use Zend\Db\Sql\Predicate\IsNull;
 use Zend\Db\Sql\Predicate\Predicate;
 use Zend\Db\Sql\Select;
-use Zend\Db\Sql\Where;
 
 final class ZendDbBuilder implements BuilderInterface
 {
@@ -41,7 +39,7 @@ final class ZendDbBuilder implements BuilderInterface
         $hint = json_decode($queryParams['h'] ?? '{}', true);
 
         if (! is_array($query) || ! is_array($hint)) {
-            throw new MalformedException('Invalid query or hint');
+            throw new Exception\MalformedException('Invalid query or hint');
         }
 
         return $this->fromParams($query, $hint);

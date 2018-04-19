@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Los\UrlQueryDb;
+namespace Los\Uql;
 
 use Psr\Http\Message\ServerRequestInterface;
 

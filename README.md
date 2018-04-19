@@ -1,10 +1,10 @@
-# UrlQueryDb
+# UQL - Url Query language
 
-[![Build Status](https://travis-ci.org/Lansoweb/urlquery-db.svg?branch=master)](https://travis-ci.org/Lansoweb/urlquery-db)
-[![Coverage Status](https://coveralls.io/repos/github/Lansoweb/urlquery-db/badge.svg?branch=master)](https://coveralls.io/github/Lansoweb/urlquery-db?branch=master)
-[![Latest Stable Version](https://poser.pugx.org/los/urlquery-db/v/stable)](https://packagist.org/packages/los/urlquery-db)
-[![Total Downloads](https://poser.pugx.org/los/urlquery-db/downloads)](https://packagist.org/packages/los/urlquery-db)
-[![License](https://poser.pugx.org/los/urlquery-db/license)](https://packagist.org/packages/los/urlquery-db)
+[![Build Status](https://travis-ci.org/Lansoweb/uql.svg?branch=master)](https://travis-ci.org/Lansoweb/uql)
+[![Coverage Status](https://coveralls.io/repos/github/Lansoweb/uql/badge.svg?branch=master)](https://coveralls.io/github/Lansoweb/uql?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/los/uql/v/stable)](https://packagist.org/packages/los/uql)
+[![Total Downloads](https://poser.pugx.org/los/uql/downloads)](https://packagist.org/packages/los/uql)
+[![License](https://poser.pugx.org/los/uql/license)](https://packagist.org/packages/los/uql)
 
 This library utilizes url query parameters and generates db queries.
 
@@ -16,11 +16,10 @@ Planned:
 
 - [mongodb](https://docs.mongodb.com/php-library/current/)
 
-
 ## Installing
 
 ```sh
- composer require los/urlquery-db
+ composer require los/uql
 ```
 
 ## Usage

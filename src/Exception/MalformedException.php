@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Los\UrlQueryDb\Exception;
+namespace Los\Uql\Exception;
 
 use RuntimeException;
 

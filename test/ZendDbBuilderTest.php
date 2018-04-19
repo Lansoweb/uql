@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Los\UrlQueryDb\Tests;
+namespace Los\UqlTests;
 
-use Los\UrlQueryDb\Exception\MalformedException;
-use Los\UrlQueryDb\ZendDbBuilder;
-use Los\UrlQueryDbTests\TestAssets\TrustingSql92Platform;
+use Los\Uql\Exception\MalformedException;
+use Los\Uql\ZendDbBuilder;
+use Los\UqlTests\TestAssets\TrustingSql92Platform;
 use PHPUnit\Framework\TestCase;
 use Zend\Db\Sql\Select;
 use Zend\Diactoros\ServerRequest;

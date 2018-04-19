@@ -1,5 +1,5 @@
 <?php
-namespace Los\UrlQueryDbTests\TestAssets;
+namespace Los\UqlTests\TestAssets;
 
 use Zend\Db\Adapter\Platform\Sql92;
 

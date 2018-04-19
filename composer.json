@@ -1,9 +1,9 @@
 {
-    "name" : "los/urlquery-db",
+    "name" : "los/uql",
     "description" : "PHP library to transform url query into db partial queries",
     "license" : "MIT",
     "type" : "library",
-    "homepage" : "https://github.com/lansoweb/urlquery-db",
+    "homepage" : "https://github.com/lansoweb/uql",
     "authors" : [ {
         "name" : "Leandro Silva",
         "homepage" : "http://leandrosilva.info/"
@@ -23,12 +23,12 @@
     },
     "autoload" : {
         "psr-4" : {
-            "Los\\UrlQueryDb\\" : "src/"
+            "Los\\Uql\\" : "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Los\\UrlQueryDbTests\\": "test/"
+            "Los\\UqlTests\\": "test/"
         }
     },
     "scripts": {

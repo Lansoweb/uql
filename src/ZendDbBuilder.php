@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace Los\Uql;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Db\Sql\Predicate\IsNotNull;
-use Zend\Db\Sql\Predicate\IsNull;
-use Zend\Db\Sql\Predicate\Predicate;
-use Zend\Db\Sql\Select;
+use Laminas\Db\Sql\Predicate\IsNotNull;
+use Laminas\Db\Sql\Predicate\IsNull;
+use Laminas\Db\Sql\Predicate\Predicate;
+use Laminas\Db\Sql\Select;
 
 final class ZendDbBuilder implements BuilderInterface
 {

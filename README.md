@@ -10,7 +10,7 @@ This library utilizes url query parameters and generates db queries.
 
 At this moment, it provides integration with:
 
-- [zend-db](https://github.com/zendframework/zend-db/)
+- [zend-db](https://github.com/laminas/laminas-db/)
 
 Planned:
 
@@ -39,7 +39,7 @@ Passing the request directly:
 ```php
 public function handle(ServerRequestInterface $request): ResponseInterface
 {
-    $select = new \Zend\Db\Select('table');
+    $select = new \Laminas\Db\Select('table');
     $select = (new ZendDbBuilder($select))->fromRequest($request);
     $statement = $sql->prepareStatementForSqlObject($select);
     $results = $statement->execute();
@@ -54,7 +54,7 @@ public function handle(ServerRequestInterface $request): ResponseInterface
     $query = $queryParams['q'] ?? [];
     $hint = $queryParams['h'] ?? [];
 
-    $select = new \Zend\Db\Select('table');
+    $select = new \Laminas\Db\Select('table');
     $select = (new ZendDbBuilder($select))->fromParams($query, $hint);
     $statement = $sql->prepareStatementForSqlObject($select);
     $results = $statement->execute();

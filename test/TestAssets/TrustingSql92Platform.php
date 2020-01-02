@@ -1,7 +1,7 @@
 <?php
 namespace Los\UqlTests\TestAssets;
 
-use Zend\Db\Adapter\Platform\Sql92;
+use Laminas\Db\Adapter\Platform\Sql92;
 
 class TrustingSql92Platform extends Sql92
 {

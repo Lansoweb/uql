@@ -7,8 +7,8 @@ use Los\Uql\Exception\MalformedException;
 use Los\Uql\ZendDbBuilder;
 use Los\UqlTests\TestAssets\TrustingSql92Platform;
 use PHPUnit\Framework\TestCase;
-use Zend\Db\Sql\Select;
-use Zend\Diactoros\ServerRequest;
+use Laminas\Db\Sql\Select;
+use Laminas\Diactoros\ServerRequest;
 
 class ZendDbBuilderTest extends TestCase
 {

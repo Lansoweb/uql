@@ -1,6 +1,36 @@
 <?xml version="1.0"?>
-<ruleset name="Zend Framework Coding Standard">
-	<rule ref="./vendor/laminas/laminas-coding-standard/ruleset.xml"/>
+<ruleset name="App coding standard">
+	<description>App coding standard</description>
+
+	<!-- display progress -->
+	<arg value="p"/>
+	<arg name="colors"/>
+
+	<!-- inherit rules from: -->
+	<rule ref="Doctrine">
+		<exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification"/>
+		<exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingTraversableTypeHintSpecification"/>
+		<exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingAnyTypeHint"/>
+		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification"/>
+		<!--        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingAnyTypeHint"/>-->
+		<exclude name="SlevomatCodingStandard.Classes.SuperfluousInterfaceNaming.SuperfluousSuffix"/>
+		<exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingTraversableParameterTypeHintSpecification"/>
+		<exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingTraversablePropertyTypeHintSpecification"/>
+		<exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingTraversableReturnTypeHintSpecification"/>
+<!--		<exclude name="Squiz.Commenting.FunctionComment.WrongStyle"/>-->
+	</rule>
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace"/>
+	<rule ref="Generic.Files.LineLength">
+		<properties>
+			<property name="lineLimit" value="160"/>
+			<property name="absoluteLineLimit" value="180"/>
+		</properties>
+	</rule>
+
+	<rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedCatch">
+		<severity>5</severity>
+	</rule>
 
 	<!-- Paths to check -->
 	<file>src</file>

@@ -82,10 +82,11 @@ public function handle(ServerRequestInterface $request): ResponseInterface
 
 You can mix and nest queries:
 
-| url query | select |
-|-----------|-----------|
-| ?q={"id":{"$not":1},"$or":[{"id":2},{"id":"3"}],"$and":[{"id":2},{"name":"test"}]} | WHERE "id" != '1' AND ("id" = '2' OR "id" = '3') AND ("id" = '2' AND "name" = 'test') |
-| ?q={"$or":[{"$and":[{"id":1},{"name":"test"}]},{"id":{"$not":1}},{"name":"test"}]} | WHERE (("id" = '1' AND "name" = 'test') OR "id" != '1' OR "name" = 'test') |
+| url query                                                                           | select |
+|-------------------------------------------------------------------------------------|-----------|
+| ?q={"id":{"$not":1},"$or":[{"id":2},{"id":"3"}],"$and":[{"id":2},{"name":"test"}]}  | WHERE "id" != '1' AND ("id" = '2' OR "id" = '3') AND ("id" = '2' AND "name" = 'test') |
+| ?q={"$or":[{"$and":[{"id":1},{"name":"test"}]},{"id":{"$not":1}},{"name":"test"}]}  | WHERE (("id" = '1' AND "name" = 'test') OR "id" != '1' OR "name" = 'test') |
+| ?q={"$and": [{"name":"john"},{"likes": {"$in": ["facebook", "twitter", "instagram"]}}]} | WHERE ("name" = 'john' AND "likes" IN ('facebook', 'twitter', 'instagram')) |
 
 #### Hint examples:
 

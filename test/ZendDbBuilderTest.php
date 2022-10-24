@@ -15,7 +15,7 @@ class ZendDbBuilderTest extends TestCase
     /** @var ZendDbBuilder */
     private $builder;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->builder = new ZendDbBuilder(new Select('test'));
     }
@@ -246,6 +246,15 @@ class ZendDbBuilderTest extends TestCase
         $request = $request->withQueryParams(['h' => '{"$skip":100}']);
         $select = $this->builder->fromRequest($request);
         $this->assertSame('SELECT "test".* FROM "test" OFFSET \'100\'', $this->createString($select));
+    }
+
+    public function testAndWithNestedIn()
+    {
+        $request = new ServerRequest();
+        $request = $request->withQueryParams(['q' => '{"$and": [{"name":"john"},{"likes": {"$in": ["facebook", "twitter", "instagram"]}}]}']);
+        $select = $this->builder->fromRequest($request);
+        $this->assertSame(1, $select->where->count());
+        $this->assertSame('SELECT "test".* FROM "test" WHERE ("name" = \'john\' AND "likes" IN (\'facebook\', \'twitter\', \'instagram\'))', $this->createString($select));
     }
 
     private function createString(Select $select) : string

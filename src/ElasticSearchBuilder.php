@@ -110,7 +110,7 @@ final class ElasticSearchBuilder implements BuilderInterface
         $op      = key($value);
 
         if (in_array($op, BuilderInterface::OP_LOGIC)) {
-            return $this->parseLogic($key, $op, $opValue);
+            return $this->parseLogic($key, $op, $opValue, $withoutOperator);
         }
 
         if (in_array($op, BuilderInterface::OP_CONDITIONAL)) {
@@ -125,18 +125,24 @@ final class ElasticSearchBuilder implements BuilderInterface
      *
      * @param mixed $value
      */
-    private function parseLogic(string $key, string $op, $value): array
+    private function parseLogic(string $key, string $op, $value, bool $withoutOperator = false): array
     {
         if ($op === BuilderInterface::OP_NOT) {
-            return ['must_not' => ['term' => [$key => $value]]];
+            $params = ['term' => [$key => $value]];
+
+            return $withoutOperator ? $params : ['must_not' => $params];
         }
 
         if ($op === BuilderInterface::OP_IN) {
-            return ['filter' => ['terms' => [$key => $value]]];
+            $params = ['terms' => [$key => $value]];
+
+            return $withoutOperator ? $params : ['filter' => $params]; // filter or must?
         }
 
         if ($op === BuilderInterface::OP_NOT_IN) {
-            return ['must_not' => ['terms' => [$key => $value]]];
+            $params = ['terms' => [$key => $value]];
+
+            return $withoutOperator ? $params : ['must_not' => $params]; // filter or must?
         }
 
         // At this point, should only be BuilderInterface::OP_LIKE . No if to keep PHPUnit happy

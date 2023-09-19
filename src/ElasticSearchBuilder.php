@@ -7,8 +7,10 @@ namespace Los\Uql;
 use Psr\Http\Message\ServerRequestInterface;
 
 use function array_merge;
+use function assert;
 use function in_array;
 use function is_array;
+use function is_string;
 use function json_decode;
 use function key;
 use function reset;
@@ -16,14 +18,10 @@ use function str_replace;
 
 final class ElasticSearchBuilder implements BuilderInterface
 {
-    private string $queryName;
-    private string $hintName;
     private array $params = [];
 
-    public function __construct(string $queryName = 'q', string $hintName = 'h')
+    public function __construct(private string $queryName = 'q', private string $hintName = 'h')
     {
-        $this->queryName = $queryName;
-        $this->hintName  = $hintName;
     }
 
     public function fromRequest(ServerRequestInterface $request): array
@@ -108,6 +106,8 @@ final class ElasticSearchBuilder implements BuilderInterface
 
         $opValue = reset($value);
         $op      = key($value);
+
+        assert(is_string($op));
 
         if (in_array($op, BuilderInterface::OP_LOGIC)) {
             return $this->parseLogic($key, $op, $opValue);

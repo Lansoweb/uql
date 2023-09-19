@@ -60,8 +60,6 @@ interface BuilderInterface
      */
     public function fromRequest(ServerRequestInterface $request);
 
-    /**
-     * @return Select|array
-     */
+    /** @return Select|array */
     public function fromParams(array $query, array $hint = []);
 }

@@ -10,23 +10,21 @@ use Laminas\Db\Sql\Predicate\Predicate;
 use Laminas\Db\Sql\Select;
 use Psr\Http\Message\ServerRequestInterface;
 
+use function assert;
 use function in_array;
 use function is_array;
+use function is_string;
 use function json_decode;
 use function key;
 use function reset;
 
-final class ZendDbBuilder implements BuilderInterface
+final class LaminasDbBuilder implements BuilderInterface
 {
-    private string $queryName;
-    private string $hintName;
     private Select $select;
 
-    public function __construct(Select $select, string $queryName = 'q', string $hintName = 'h')
+    public function __construct(Select $select, private string $queryName = 'q', private string $hintName = 'h')
     {
-        $this->queryName = $queryName;
-        $this->hintName  = $hintName;
-        $this->select    = clone $select;
+        $this->select = clone $select;
     }
 
     public function fromRequest(ServerRequestInterface $request): Select
@@ -111,6 +109,8 @@ final class ZendDbBuilder implements BuilderInterface
         $opValue = reset($value);
         $op      = key($value);
 
+        assert(is_string($op));
+
         if (in_array($op, BuilderInterface::OP_LOGIC)) {
             $this->parseLogic($key, $op, $opValue, $where);
 
@@ -124,7 +124,7 @@ final class ZendDbBuilder implements BuilderInterface
         }
     }
 
-    private function parseLogic(string $key, string $op, $value, Predicate $where): void
+    private function parseLogic(string $key, string $op, mixed $value, Predicate $where): void
     {
         if ($op === BuilderInterface::OP_NOT) {
             $where->notEqualTo($key, $value);
@@ -148,7 +148,7 @@ final class ZendDbBuilder implements BuilderInterface
         $where->like($key, $value);
     }
 
-    private function parseConditional(string $key, string $op, $value, Predicate $where): void
+    private function parseConditional(string $key, string $op, mixed $value, Predicate $where): void
     {
         if ($op === BuilderInterface::OP_GREATER) {
             $where->greaterThan($key, $value);
@@ -178,7 +178,7 @@ final class ZendDbBuilder implements BuilderInterface
         $where->between($key, $value[0], $value[1]);
     }
 
-    private function parseHint(string $key, $value, Select $select): void
+    private function parseHint(string $key, mixed $value, Select $select): void
     {
         if ($key === BuilderInterface::HINT_SORT) {
             if (! is_array($value)) {

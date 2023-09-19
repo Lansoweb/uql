@@ -2,27 +2,22 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 1.2.0 - TBD
+## 1.2.0 - 2023-09-19
 
-### Added
 
-- Nothing.
+-----
 
-### Changed
+### Release Notes for [1.2.0](https://github.com/Lansoweb/uql/milestone/3)
 
-- Nothing.
+Feature release (minor)
 
-### Deprecated
+### 1.2.0
 
-- Nothing.
+- Total issues resolved: **0**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
 
-### Removed
-
-- Nothing.
-
-### Fixed
-
-- Nothing.
+ - [3: Php 8](https://github.com/Lansoweb/uql/pull/3) thanks to @Lansoweb
 
 ## 1.0.0 - 2020-01-02
 

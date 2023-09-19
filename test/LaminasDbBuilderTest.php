@@ -4,20 +4,20 @@ declare(strict_types=1);
 namespace Los\UqlTests;
 
 use Los\Uql\Exception\MalformedException;
-use Los\Uql\ZendDbBuilder;
+use Los\Uql\LaminasDbBuilder;
 use Los\UqlTests\TestAssets\TrustingSql92Platform;
 use PHPUnit\Framework\TestCase;
 use Laminas\Db\Sql\Select;
 use Laminas\Diactoros\ServerRequest;
 
-class ZendDbBuilderTest extends TestCase
+class LaminasDbBuilderTest extends TestCase
 {
-    /** @var ZendDbBuilder */
+    /** @var LaminasDbBuilder */
     private $builder;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->builder = new ZendDbBuilder(new Select('test'));
+        $this->builder = new LaminasDbBuilder(new Select('test'));
     }
 
     public function testFromRequestWithInvalidQuery()

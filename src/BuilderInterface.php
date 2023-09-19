@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Los\Uql;
@@ -8,16 +9,16 @@ use Psr\Http\Message\ServerRequestInterface;
 interface BuilderInterface
 {
     // Logical
-    const OP_NOT = '$not';
-    const OP_IN = '$in';
-    const OP_NOT_IN = '$nin';
-    const OP_LIKE = '$like';
-    const OP_OR = '$or';
-    const OP_AND = '$and';
-    const OP_NULL = '$null';
-    const OP_NOT_NULL = '$nnull';
+    public const OP_NOT      = '$not';
+    public const OP_IN       = '$in';
+    public const OP_NOT_IN   = '$nin';
+    public const OP_LIKE     = '$like';
+    public const OP_OR       = '$or';
+    public const OP_AND      = '$and';
+    public const OP_NULL     = '$null';
+    public const OP_NOT_NULL = '$nnull';
 
-    const OP_LOGIC = [
+    public const OP_LOGIC = [
         self::OP_NOT,
         self::OP_IN,
         self::OP_NOT_IN,
@@ -29,28 +30,29 @@ interface BuilderInterface
     ];
 
     // Conditional
-    const OP_GREATER = '$gt';
-    const OP_GREATER_EQUAL = '$gte';
-    const OP_LESS = '$lt';
-    const OP_LESS_EQUAL = '$lte';
-    const OP_BETWEEN = '$bt';
+    public const OP_GREATER       = '$gt';
+    public const OP_GREATER_EQUAL = '$gte';
+    public const OP_LESS          = '$lt';
+    public const OP_LESS_EQUAL    = '$lte';
+    public const OP_BETWEEN       = '$bt';
 
-    const OP_CONDITIONAL = [
+    public const OP_CONDITIONAL = [
         self::OP_GREATER,
         self::OP_GREATER_EQUAL,
         self::OP_LESS,
         self::OP_LESS_EQUAL,
-        self::OP_BETWEEN
+        self::OP_BETWEEN,
     ];
 
     // Hints
-    const HINT_SORT = '$sort';
-    const HINT_LIMIT = '$limit';
-    const HINT_SKIP = '$skip';
+    public const HINT_SORT  = '$sort';
+    public const HINT_LIMIT = '$limit';
+    public const HINT_SKIP  = '$skip';
 
-    const HINT_ORDER_ASC = ['asc', 'ASC', 1, '1'];
-    const HINT_ORDER_DESC = ['desc', 'DESC', -1, '-1'];
+    public const HINT_ORDER_ASC  = ['asc', 'ASC', 1, '1'];
+    public const HINT_ORDER_DESC = ['desc', 'DESC', -1, '-1'];
 
-    public function fromRequest(ServerRequestInterface $request);
-    public function fromParams(array $query, array $hint = []);
+    public function fromRequest(ServerRequestInterface $request): mixed;
+
+    public function fromParams(array $query, array $hint = []): mixed;
 }

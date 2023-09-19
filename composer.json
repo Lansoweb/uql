@@ -39,7 +39,7 @@
             "@phpstan",
             "@test"
         ],
-        "cs-check": "phpcs",
+        "cs-check": "phpcs -s",
         "cs-fix": "phpcbf",
         "phpstan": "phpstan analyse",
         "test": "phpunit --colors=always",

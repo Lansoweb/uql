@@ -7,8 +7,10 @@ namespace Los\Uql;
 use Psr\Http\Message\ServerRequestInterface;
 
 use function array_merge;
+use function assert;
 use function in_array;
 use function is_array;
+use function is_string;
 use function json_decode;
 use function key;
 use function reset;
@@ -16,17 +18,17 @@ use function str_replace;
 
 final class ElasticSearchBuilder implements BuilderInterface
 {
-    private $params = [];
+    private array $params = [];
 
-    public function __construct()
+    public function __construct(private string $queryName = 'q', private string $hintName = 'h')
     {
     }
 
     public function fromRequest(ServerRequestInterface $request): array
     {
         $queryParams = $request->getQueryParams();
-        $query       = json_decode($queryParams['q'] ?? '{}', true);
-        $hint        = json_decode($queryParams['h'] ?? '{}', true);
+        $query       = json_decode($queryParams[$this->queryName] ?? '{}', true);
+        $hint        = json_decode($queryParams[$this->hintName] ?? '{}', true);
 
         if (! is_array($query) || ! is_array($hint)) {
             throw new Exception\MalformedException('Invalid query or hint');
@@ -55,6 +57,11 @@ final class ElasticSearchBuilder implements BuilderInterface
         return $result;
     }
 
+    /**
+     * @phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     *
+     * @param mixed $value
+     */
     private function parseQuery(string $key, $value, bool $withoutOperator = false): array
     {
         if ($key === BuilderInterface::OP_NULL) {
@@ -100,6 +107,8 @@ final class ElasticSearchBuilder implements BuilderInterface
         $opValue = reset($value);
         $op      = key($value);
 
+        assert(is_string($op));
+
         if (in_array($op, BuilderInterface::OP_LOGIC)) {
             return $this->parseLogic($key, $op, $opValue);
         }
@@ -111,7 +120,12 @@ final class ElasticSearchBuilder implements BuilderInterface
         return [];
     }
 
-    private function parseLogic(string $key, $op, $value): array
+    /**
+     * @phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     *
+     * @param mixed $value
+     */
+    private function parseLogic(string $key, string $op, $value): array
     {
         if ($op === BuilderInterface::OP_NOT) {
             return ['must_not' => ['term' => [$key => $value]]];
@@ -129,7 +143,12 @@ final class ElasticSearchBuilder implements BuilderInterface
         return ['wildcard' => [$key => str_replace('%', '*', $value)]];
     }
 
-    private function parseConditional(string $key, $op, $value): array
+    /**
+     * @phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     *
+     * @param mixed $value
+     */
+    private function parseConditional(string $key, string $op, $value): array
     {
         if ($op === BuilderInterface::OP_GREATER) {
             return ['filter' => ['range' => [$key => ['gt' => $value]]]];
@@ -151,7 +170,12 @@ final class ElasticSearchBuilder implements BuilderInterface
         return ['filter' => ['range' => [$key => ['gt' => $value[0], 'lt' => $value[1]]]]];
     }
 
-    private function parseHint($key, $value): array
+    /**
+     * @phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     *
+     * @param mixed $value
+     */
+    private function parseHint(string $key, $value): array
     {
         if ($key === BuilderInterface::HINT_SORT) {
             if (! is_array($value)) {

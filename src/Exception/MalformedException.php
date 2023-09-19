@@ -6,6 +6,7 @@ namespace Los\Uql\Exception;
 
 use RuntimeException;
 
+/** @phpcs:disable SlevomatCodingStandard.Classes.SuperfluousExceptionNaming.SuperfluousSuffix */
 class MalformedException extends RuntimeException
 {
 }

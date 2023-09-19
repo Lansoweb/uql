@@ -20,9 +20,9 @@ use function reset;
 
 final class LaminasDbBuilder implements BuilderInterface
 {
-    private $select;
+    private Select $select;
 
-    public function __construct(Select $select)
+    public function __construct(Select $select, private string $queryName = 'q', private string $hintName = 'h')
     {
         $this->select = clone $select;
     }
@@ -30,8 +30,8 @@ final class LaminasDbBuilder implements BuilderInterface
     public function fromRequest(ServerRequestInterface $request): Select
     {
         $queryParams = $request->getQueryParams();
-        $query       = json_decode($queryParams['q'] ?? '{}', true);
-        $hint        = json_decode($queryParams['h'] ?? '{}', true);
+        $query       = json_decode($queryParams[$this->queryName] ?? '{}', true);
+        $hint        = json_decode($queryParams[$this->hintName] ?? '{}', true);
 
         if (! is_array($query) || ! is_array($hint)) {
             throw new Exception\MalformedException('Invalid query or hint');
@@ -57,7 +57,12 @@ final class LaminasDbBuilder implements BuilderInterface
         return $this->select;
     }
 
-    private function parseQuery(mixed $key, mixed $value, Predicate $where): void
+    /**
+     * @phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     *
+     * @param mixed $value
+     */
+    private function parseQuery(string $key, $value, Predicate $where): void
     {
         if ($key === BuilderInterface::OP_NULL) {
             $where->addPredicate(new IsNull($value));
@@ -119,7 +124,7 @@ final class LaminasDbBuilder implements BuilderInterface
         }
     }
 
-    private function parseLogic(mixed $key, string $op, mixed $value, Predicate $where): void
+    private function parseLogic(string $key, string $op, mixed $value, Predicate $where): void
     {
         if ($op === BuilderInterface::OP_NOT) {
             $where->notEqualTo($key, $value);
@@ -143,7 +148,7 @@ final class LaminasDbBuilder implements BuilderInterface
         $where->like($key, $value);
     }
 
-    private function parseConditional(mixed $key, string $op, mixed $value, Predicate $where): void
+    private function parseConditional(string $key, string $op, mixed $value, Predicate $where): void
     {
         if ($op === BuilderInterface::OP_GREATER) {
             $where->greaterThan($key, $value);
@@ -173,7 +178,7 @@ final class LaminasDbBuilder implements BuilderInterface
         $where->between($key, $value[0], $value[1]);
     }
 
-    private function parseHint(mixed $key, mixed $value, Select $select): void
+    private function parseHint(string $key, mixed $value, Select $select): void
     {
         if ($key === BuilderInterface::HINT_SORT) {
             if (! is_array($value)) {

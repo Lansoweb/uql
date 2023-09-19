@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Los\Uql;
 
+use Laminas\Db\Sql\Select;
 use Psr\Http\Message\ServerRequestInterface;
 
 interface BuilderInterface
@@ -52,7 +53,13 @@ interface BuilderInterface
     public const HINT_ORDER_ASC  = ['asc', 'ASC', 1, '1'];
     public const HINT_ORDER_DESC = ['desc', 'DESC', -1, '-1'];
 
-    public function fromRequest(ServerRequestInterface $request): mixed;
+    /**
+     * @phpcs:disable SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
+     *
+     * @return Select|array
+     */
+    public function fromRequest(ServerRequestInterface $request);
 
-    public function fromParams(array $query, array $hint = []): mixed;
+    /** @return Select|array */
+    public function fromParams(array $query, array $hint = []);
 }
